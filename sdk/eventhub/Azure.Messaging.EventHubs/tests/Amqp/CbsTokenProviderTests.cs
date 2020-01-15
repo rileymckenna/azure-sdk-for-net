@@ -38,28 +38,6 @@ namespace Azure.Messaging.EventHubs.Tests
         /// </summary>
         ///
         [Test]
-        public async Task GetTokenAsyncPassesAlongTheClaims()
-        {
-            var requiredClaims = new[] { "one", "two" };
-            var mockCredential = new Mock<TokenCredential>();
-            var credential = new EventHubTokenCredential(mockCredential.Object, "test");
-            var provider = new CbsTokenProvider(credential, default);
-
-            mockCredential
-                .Setup(credential => credential.GetTokenAsync(It.Is<TokenRequest>(value => value.Scopes == requiredClaims), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new AccessToken("blah", DateTimeOffset.Parse("2015-10-27T00:00:00Z"))))
-                .Verifiable();
-
-            await provider.GetTokenAsync(new Uri("http://www.here.com"), "nobody", requiredClaims);
-            mockCredential.Verify();
-        }
-
-        /// <summary>
-        ///   Verifies functionality of the <see cref="CbsTokenProvider.GetTokenAsync" />
-        ///   method.
-        /// </summary>
-        ///
-        [Test]
         public async Task GetTokenAsyncPopulatesUsingTheCredentialAccessToken()
         {
             var tokenValue = "ValuE_oF_tHE_tokEn";
@@ -69,8 +47,8 @@ namespace Azure.Messaging.EventHubs.Tests
             var provider = new CbsTokenProvider(credential, default);
 
             mockCredential
-                .Setup(credential => credential.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new AccessToken(tokenValue, expires)));
+                .Setup(credential => credential.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
+                .Returns(new ValueTask<AccessToken>(new AccessToken(tokenValue, expires)));
 
             CbsToken cbsToken = await provider.GetTokenAsync(new Uri("http://www.here.com"), "nobody", new string[0]);
 
@@ -88,7 +66,7 @@ namespace Azure.Messaging.EventHubs.Tests
         public async Task GetTokenAsyncSetsTheCorrectTypeForSharedAccessSignatureTokens()
         {
             var value = "TOkEn!";
-            var signature = new SharedAccessSignature(string.Empty, "keyName", "key", value, DateTimeOffset.Parse("2015-10-27T00:00:00Z"));
+            var signature = new SharedAccessSignature("hub", "keyName", "key", value, DateTimeOffset.Parse("2015-10-27T00:00:00Z"));
             var sasCredential = new SharedAccessSignatureCredential(signature);
             var credential = new EventHubTokenCredential(sasCredential, "test");
             var provider = new CbsTokenProvider(credential, default);
@@ -113,8 +91,8 @@ namespace Azure.Messaging.EventHubs.Tests
             var provider = new CbsTokenProvider(credential, default);
 
             mockCredential
-                .Setup(credential => credential.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new AccessToken(tokenValue, expires)));
+                .Setup(credential => credential.GetTokenAsync(It.IsAny<TokenRequestContext>(), It.IsAny<CancellationToken>()))
+                .Returns(new ValueTask<AccessToken>(new AccessToken(tokenValue, expires)));
 
             CbsToken cbsToken = await provider.GetTokenAsync(new Uri("http://www.here.com"), "nobody", new string[0]);
 

@@ -67,6 +67,12 @@ namespace Azure.Storage.Test
         private string TargetOAuthTenantName { get; set; }
 
         /// <summary>
+        /// Gets the name of the tenant in the Tenants dictionary to use for
+        /// any tests that require hierarchical namespace.
+        /// </summary>
+        private string TargetHierarchicalNamespaceTenantName { get; set; }
+
+        /// <summary>
         /// Gets the tenant to use by default for our tests.
         /// </summary>
         public static TenantConfiguration DefaultTargetTenant =>
@@ -97,6 +103,12 @@ namespace Azure.Storage.Test
         /// </summary>
         public static TenantConfiguration DefaultTargetOAuthTenant =>
             GetTenant("TargetOAuthTenant", s_configurations.Value.TargetOAuthTenantName);
+
+        /// <summary>
+        /// Gets a tenant to use for any tests that require hierarchical namespace
+        /// </summary>
+        public static TenantConfiguration DefaultTargetHierarchicalNamespaceTenant =>
+            GetTenant("TargetHierarchicalNamespaceTenant", s_configurations.Value.TargetHierarchicalNamespaceTenantName);
 
         /// <summary>
         /// When loading our test configuration, we'll check the
@@ -193,21 +205,12 @@ namespace Azure.Storage.Test
                 TargetPremiumBlobTenantName = Get("TargetPremiumBlobTenant"),
                 TargetPreviewBlobTenantName = Get("TargetPreviewBlobTenant"),
                 TargetOAuthTenantName = Get("TargetOAuthTenant"),
+                TargetHierarchicalNamespaceTenantName = Get("TargetHierarchicalNamespaceTenant"),
                 Tenants =
                     config.Element("TenantConfigurations").Elements("TenantConfiguration")
                     .Select(TenantConfiguration.Parse)
                     .ToDictionary(tenant => tenant.TenantName)
             };
         }
-
-        /// <summary>
-        /// Add a static TestEventListener which will redirect SDK logging
-        /// to Console.Out for easy debugging.
-        ///
-        /// This is only here to run before any of our tests make requests.
-        /// </summary>
-#pragma warning disable IDE0052 // Remove unread private members
-        private static readonly TestEventListener s_logging = new TestEventListener();
-#pragma warning restore IDE0052 // Remove unread private members
     }
 }

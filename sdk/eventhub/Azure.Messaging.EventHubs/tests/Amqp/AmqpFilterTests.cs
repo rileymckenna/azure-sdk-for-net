@@ -2,13 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Azure.Messaging.EventHubs.Errors;
-using Microsoft.Azure.Amqp;
+using Azure.Messaging.EventHubs.Consumer;
 using Microsoft.Azure.Amqp.Encoding;
-using Microsoft.Azure.Amqp.Framing;
 using NUnit.Framework;
 
 namespace Azure.Messaging.EventHubs.Tests
@@ -21,17 +16,6 @@ namespace Azure.Messaging.EventHubs.Tests
     [TestFixture]
     public class AmqpFilterTests
     {
-        /// <summary>
-        ///   Verifies functionality of the <see cref="AmqpFilter.BuildFilterExpression(EventPosition)" />
-        ///   method.
-        /// </summary>
-        ///
-        [Test]
-        public void BuildFilterExpressionValidatesTheEventPosition()
-        {
-            Assert.That(() => AmqpFilter.BuildFilterExpression(null), Throws.ArgumentNullException);
-        }
-
         /// <summary>
         ///   Verifies functionality of the <see cref="AmqpFilter.BuildFilterExpression(EventPosition)" />
         ///   method.

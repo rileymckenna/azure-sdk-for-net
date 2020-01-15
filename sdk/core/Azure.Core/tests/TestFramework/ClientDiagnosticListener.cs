@@ -17,9 +17,9 @@ namespace Azure.Core.Tests
 
         public List<ProducedDiagnosticScope> Scopes { get; } = new List<ProducedDiagnosticScope>();
 
-        public ClientDiagnosticListener()
+        public ClientDiagnosticListener(string name)
         {
-            _diagnosticSourceName = "Azure.Clients";
+            _diagnosticSourceName = name;
             DiagnosticListener.AllListeners.Subscribe(this);
         }
 
@@ -58,7 +58,7 @@ namespace Azure.Core.Tests
                     var name = value.Key.Substring(0, value.Key.Length - stopSuffix.Length);
                     foreach (ProducedDiagnosticScope producedDiagnosticScope in Scopes)
                     {
-                        if (producedDiagnosticScope.Name == name)
+                        if (producedDiagnosticScope.Activity.Id == Activity.Current.Id)
                         {
                             producedDiagnosticScope.IsCompleted = true;
                             return;

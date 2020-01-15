@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using Azure.Core;
 using Azure.Messaging.EventHubs.Core;
+using Azure.Messaging.EventHubs.Producer;
 using Microsoft.Azure.Amqp;
 
 namespace Azure.Messaging.EventHubs.Amqp
@@ -63,7 +64,7 @@ namespace Azure.Messaging.EventHubs.Amqp
         ///   The set of options to apply to the batch.
         /// </summary>
         ///
-        private BatchOptions Options { get; }
+        private CreateBatchOptions Options { get; }
 
         /// <summary>
         ///   The set of messages that have been added to the batch.
@@ -79,15 +80,15 @@ namespace Azure.Messaging.EventHubs.Amqp
         /// <param name="options">The set of options to apply to the batch.</param>
         ///
         public AmqpEventBatch(AmqpMessageConverter messageConverter,
-                              BatchOptions options)
+                              CreateBatchOptions options)
         {
             Argument.AssertNotNull(messageConverter, nameof(messageConverter));
             Argument.AssertNotNull(options, nameof(options));
-            Argument.AssertNotNull(options.MaximumizeInBytes, nameof(options.MaximumizeInBytes));
+            Argument.AssertNotNull(options.MaximumSizeInBytes, nameof(options.MaximumSizeInBytes));
 
             MessageConverter = messageConverter;
             Options = options;
-            MaximumSizeInBytes = options.MaximumizeInBytes.Value;
+            MaximumSizeInBytes = options.MaximumSizeInBytes.Value;
 
             // Initialize the size by reserving space for the batch envelope.
 
@@ -130,6 +131,7 @@ namespace Azure.Messaging.EventHubs.Amqp
 
                 _sizeBytes = size;
                 BatchMessages.Add(eventMessage);
+
                 return true;
             }
             catch

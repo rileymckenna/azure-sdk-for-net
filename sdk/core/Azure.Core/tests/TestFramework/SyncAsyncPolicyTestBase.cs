@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core.Http;
 using Azure.Core.Pipeline;
 using NUnit.Framework;
 
@@ -20,7 +19,7 @@ namespace Azure.Core.Testing
 
         protected async Task<Response> SendRequestAsync(HttpPipeline pipeline, Action<Request> requestAction, bool bufferResponse = true, CancellationToken cancellationToken = default)
         {
-            HttpPipelineMessage message = pipeline.CreateMessage();
+            HttpMessage message = pipeline.CreateMessage();
             message.BufferResponse = bufferResponse;
             requestAction(message.Request);
 
@@ -44,12 +43,12 @@ namespace Azure.Core.Testing
             return await SendRequestAsync(pipeline, requestAction, bufferResponse, CancellationToken.None);
         }
 
-        protected async Task<Response> SendGetRequest(HttpPipelineTransport transport, HttpPipelinePolicy policy, ResponseClassifier responseClassifier = null, bool bufferResponse = true)
+        protected async Task<Response> SendGetRequest(HttpPipelineTransport transport, HttpPipelinePolicy policy, ResponseClassifier responseClassifier = null, bool bufferResponse = true, Uri uri = null)
         {
             return await SendRequestAsync(transport, request =>
             {
                 request.Method = RequestMethod.Get;
-                request.Uri.Reset(new Uri("http://example.com"));
+                request.Uri.Reset(uri ?? new Uri("http://example.com"));
             }, policy, responseClassifier, bufferResponse);
         }
     }
