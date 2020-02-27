@@ -7,7 +7,7 @@
       "RequestBody": "",
       "RequestHeaders": {
         "x-ms-client-request-id": [
-          "d0ccc487-3284-43a6-af4f-7ab63a2fa09f"
+          "78be18f1-e1cf-4466-8298-3a8ab96a5c8d"
         ],
         "Accept-Language": [
           "en-US"
@@ -16,7 +16,7 @@
           "FxVersion/4.6.28325.01",
           "OSName/Windows",
           "OSVersion/Microsoft.Windows.10.0.18363.",
-          "Microsoft.Azure.Management.Peering.PeeringManagementClient/2.0.0.1"
+          "Microsoft.Azure.Management.Peering.PeeringManagementClient/0.13.0.0"
         ]
       },
       "ResponseHeaders": {
@@ -27,19 +27,19 @@
           "http://schemas.microsoft.com/dsts/saml2-bearer metadata-version=1,sts-realm=realm://dsts.core.azure-test.net/,certificate-sts-address=https://co2agg04-dsts.dsts.core.azure-test.net/v2/wstrust/13/certificate,issued-token-sts-address=https://co2agg04-dsts.dsts.core.azure-test.net/v2/wstrust/13/issuedtoken-bearer,discovery-sts-address=https://co2agg04-dsts.dsts.core.azure-test.net/2012/IDstsDiscoveryService,service-dns-name=secrets.wanrr-test.radar.core.azure-test.net,known-sts-thumbprints=ForBackwardCompatibility,trusted-sts-thumbprints=ForBackwardCompatibility,error=3,error-description=\"The security token is invalid. Cannot decode base64 encoded string. The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters. \""
         ],
         "x-ms-request-id": [
-          "3b2c3b02-8c5f-498a-b5fb-ea9b55a3201f"
+          "9b5357c1-e308-41fe-910e-6013cdcdb5bd"
         ],
         "Date": [
-          "Thu, 27 Feb 2020 21:04:35 GMT"
+          "Tue, 04 Feb 2020 20:28:13 GMT"
         ],
         "Content-Length": [
-          "1030"
+          "19"
         ],
         "Content-Type": [
           "application/json; charset=utf-8"
         ]
       },
-      "ResponseBody": "{\r\n  \"value\": [\r\n    {\r\n      \"properties\": {\r\n        \"peerAsn\": 1349,\r\n        \"peerContactDetail\": [\r\n          {\r\n            \"role\": \"Noc\",\r\n            \"email\": \"noc1349@contoso.com\",\r\n            \"phone\": \"8888988888\"\r\n          }\r\n        ],\r\n        \"peerName\": \"Contoso\",\r\n        \"validationState\": \"Approved\"\r\n      },\r\n      \"name\": \"AS1349\",\r\n      \"id\": \"/subscriptions/3e919f9a-4e26-4736-aa8d-d596d9a49239/providers/Microsoft.Peering/peerAsns/AS1349\",\r\n      \"type\": \"Microsoft.Peering/peerAsns\"\r\n    },\r\n    {\r\n      \"properties\": {\r\n        \"peerAsn\": 3653,\r\n        \"peerContactDetail\": [\r\n          {\r\n            \"role\": \"Noc\",\r\n            \"email\": \"noc3653@contoso.com\",\r\n            \"phone\": \"8888988888\"\r\n          }\r\n        ],\r\n        \"peerName\": \"Contoso\",\r\n        \"validationState\": \"Approved\"\r\n      },\r\n      \"name\": \"AS3653\",\r\n      \"id\": \"/subscriptions/3e919f9a-4e26-4736-aa8d-d596d9a49239/providers/Microsoft.Peering/peerAsns/AS3653\",\r\n      \"type\": \"Microsoft.Peering/peerAsns\"\r\n    }\r\n  ]\r\n}",
+      "ResponseBody": "{\r\n  \"value\": []\r\n}",
       "StatusCode": 200
     }
   ],
