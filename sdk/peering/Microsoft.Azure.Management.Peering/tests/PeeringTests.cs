@@ -57,7 +57,7 @@ namespace Peering.Tests
         public PeeringTests()
         {
             // Set the value to false for Playback or True for record.
-            this.Setup(false);
+            this.Setup(true);
         }
 
         /// <summary>
@@ -341,12 +341,11 @@ namespace Peering.Tests
             }
         }
 
-        [Fact]
-        public void RunDftest()
+        private void RunDftest()
         {
             using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                this.MockClients(context, false);
+                this.MockClients(context, true);
                 var asns = this.Client.PeerAsns.ListBySubscription();
                 if (!asns.FirstOrDefault().ValidationState.Equals(
                         "Approved",
@@ -389,7 +388,7 @@ namespace Peering.Tests
                     //var resourceGroup = this.ResourcesClient.ResourceGroups.CreateOrUpdate(
                     //    rgname,
                     //    new ResourceGroup { Location = "centralus" });
-                    
+
                     // Create Asn 
                     var subId = this.CreatePeerAsn(asn, $"AS{asn}", isApproved: true);
 
@@ -403,30 +402,29 @@ namespace Peering.Tests
                     var loc = locations.FirstOrDefault(x => x.Name == "Seattle");
                     //Create Direct Peering
                     var directConnection = new DirectConnection
-                                               {
-                                                   ConnectionIdentifier = Guid.NewGuid().ToString(),
-                                                   BandwidthInMbps = 10000,
-                                                   PeeringDBFacilityId =
-                                                       loc.Direct.PeeringFacilities
-                                                           .FirstOrDefault(x => x.PeeringDBFacilityId == 99999)
-                                                           ?.PeeringDBFacilityId,
-                                                   SessionAddressProvider = SessionAddressProvider.Microsoft,
-                                                   UseForPeeringService = true,
-                                                   //BgpSession = new Microsoft.Azure.Management.Peering.Models.BgpSession()
-                                                   //{
-                                                   //    SessionPrefixV4 = this.CreateIpv4Address(true),
-                                                   //    MaxPrefixesAdvertisedV4 = 20000
-                                                   //}
-                                               };
+                        {
+                            ConnectionIdentifier = Guid.NewGuid().ToString(),
+                            BandwidthInMbps = 10000,
+                            PeeringDBFacilityId =
+                                loc.Direct.PeeringFacilities.FirstOrDefault(x => x.PeeringDBFacilityId == 99999)
+                                    ?.PeeringDBFacilityId,
+                            SessionAddressProvider = SessionAddressProvider.Microsoft,
+                            UseForPeeringService = true,
+                            //BgpSession = new Microsoft.Azure.Management.Peering.Models.BgpSession()
+                            //{
+                            //    SessionPrefixV4 = this.CreateIpv4Address(true),
+                            //    MaxPrefixesAdvertisedV4 = 20000
+                            //}
+                        };
                     directPeeringProperties.Connections.Add(directConnection);
                     var peeringModel = new PeeringModel
-                    {
-                        PeeringLocation = loc.Name,
-                        Sku = new PeeringSku("Premium_Direct_Free"),
-                        Direct = directPeeringProperties,
-                        Location = loc.AzureRegion,
-                        Kind = "Direct"
-                    };
+                        {
+                            PeeringLocation = loc.Name,
+                            Sku = new PeeringSku("Premium_Direct_Free"),
+                            Direct = directPeeringProperties,
+                            Location = loc.AzureRegion,
+                            Kind = "Direct"
+                        };
                     var name = TestUtilities.GenerateName("direct_");
                     try
                     {
@@ -448,10 +446,7 @@ namespace Peering.Tests
                         $"{peering.Name}{prefixName}",
                         prefix.Prefix);
                     Assert.NotNull(resource.PeeringServicePrefixKey);
-                    resource = this.Client.RegisteredPrefixes.Get(
-                        rg,
-                        n,
-                        $"{peering.Name}{prefixName}");
+                    resource = this.Client.RegisteredPrefixes.Get(rg, n, $"{peering.Name}{prefixName}");
                     Assert.NotNull(resource.PeeringServicePrefixKey);
                     var list = this.Client.RegisteredPrefixes.ListByPeering(
                         this.GetResourceGroup(peering.Id),
@@ -467,6 +462,11 @@ namespace Peering.Tests
                         $"{peering.Name}{prefixName}");
                     Assert.Null(resource);
                 }
+                catch (Exception ex)
+                {
+                    Assert.NotNull(ex);
+                    Assert.True(ex.Message?.Contains("NotFound"));
+                }
                 finally
                 {
                     Assert.True(this.DeletePeering(peering.Name, this.GetResourceGroup(peering.Id)));
@@ -479,7 +479,7 @@ namespace Peering.Tests
         /// The create get list and delete registered ans.
         /// </summary>
         [Fact]
-        public void CreateGetListAndDeleteRegisteredAns()
+        public void CreateGetListAndDeleteRegisteredAsn()
         {
             using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
@@ -489,32 +489,83 @@ namespace Peering.Tests
                 var registeredAsnName = TestUtilities.GenerateName("_asn");
                 try
                 {
-                    peering = this.CreateExchangePeeringModel(asn);
+                    // Create a Resource Group
+                    var rgname = TestUtilities.GenerateName("res");
+
+                    // Create Asn 
+                    var subId = this.CreatePeerAsn(asn, $"AS{asn}", isApproved: true);
+
+                    SubResource asnReference = new SubResource(subId);
+                    var directPeeringProperties = new PeeringPropertiesDirect(
+                        new List<DirectConnection>(),
+                        false,
+                        asnReference,
+                        DirectPeeringType.IxRs);
+                    var locations = this.Client.PeeringLocations.List("Direct");
+                    var loc = locations.FirstOrDefault(x => x.Name == "Seattle");
+                    
+                    // Create Direct Peering
+                    var directConnection = new DirectConnection
+                        {
+                            ConnectionIdentifier = Guid.NewGuid().ToString(),
+                            BandwidthInMbps = 10000,
+                            PeeringDBFacilityId =
+                                loc.Direct.PeeringFacilities.FirstOrDefault(x => x.PeeringDBFacilityId == 99999)
+                                    ?.PeeringDBFacilityId,
+                            SessionAddressProvider = SessionAddressProvider.Peer,
+                            UseForPeeringService = true,
+                            BgpSession = new BgpSession
+                                {
+                                    SessionPrefixV4 = "20.20.20.0/24",
+                                    MicrosoftSessionIPv4Address = "20.20.20.123",
+                                    PeerSessionIPv4Address = "20.20.20.234",
+                                    MaxPrefixesAdvertisedV4 = 20000
+                                }
+                        };
+                    
+                    directPeeringProperties.Connections.Add(directConnection);
+                    var peeringModel = new PeeringModel
+                        {
+                            PeeringLocation = loc.Name,
+                            Sku = new PeeringSku("Premium_Direct_Free"),
+                            Direct = directPeeringProperties,
+                            Location = loc.AzureRegion,
+                            Kind = "Direct"
+                        };
+                    
+                    var name = TestUtilities.GenerateName("direct_");
+                    try
+                    {
+                        var result = this.Client.Peerings.CreateOrUpdate(rgname, name, peeringModel);
+                        peering = this.Client.Peerings.Get(rgname, name);
+                        Assert.NotNull(peering);
+                    }
+                    catch (Exception ex)
+                    {
+                        Assert.Contains("NotFound", ex.Message);
+                    }
+
                     var registeredAsn = new PeeringRegisteredAsn { Asn = asn };
                     var resource = this.Client.RegisteredAsns.CreateOrUpdate(
                         this.GetResourceGroup(peering.Id),
                         this.GetPeeringName(peering.Id),
                         $"{peering.Name}{registeredAsnName}",
                         registeredAsn.Asn);
-                    Assert.Null(resource);
+                    Assert.NotNull(resource);
                     resource = this.Client.RegisteredAsns.Get(
                         this.GetResourceGroup(peering.Id),
                         this.GetPeeringName(peering.Id),
                         $"{peering.Name}{registeredAsnName}");
-                    Assert.Null(resource);
+                    Assert.NotNull(resource);
                     var list = this.Client.RegisteredAsns.ListByPeering(
                         this.GetResourceGroup(peering.Id),
                         this.GetPeeringName(peering.Id));
-                    Assert.Null(list);
-                    this.Client.RegisteredAsns.Delete(
-                        this.GetResourceGroup(peering.Id),
-                        this.GetPeeringName(peering.Id),
-                        $"{peering.Name}{registeredAsnName}");
-                    resource = this.Client.RegisteredAsns.Get(
-                        this.GetResourceGroup(peering.Id),
-                        this.GetPeeringName(peering.Id),
-                        $"{peering.Name}{registeredAsnName}");
-                    Assert.Null(resource);
+                    Assert.NotNull(list);
+                }
+                catch (Exception ex)
+                {
+                    Assert.NotNull(ex);
+                    Assert.NotNull(ex.Message?.Contains("NotFound"));
                 }
                 finally
                 {
