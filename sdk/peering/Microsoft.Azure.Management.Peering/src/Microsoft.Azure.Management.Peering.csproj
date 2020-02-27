@@ -9,11 +9,9 @@
 		<AssemblyName>Microsoft.Azure.Management.Peering</AssemblyName>
 		<Version>2.0.0-preview</Version>
 		<PackageTags></PackageTags>
-    <PackageReleaseNotes><![CDATA[
-		- Added Registered ASN operations.
-		- Added Registered Prefix operations.
-		- Added Improvement to Peering Service operations. 
-		]]>
+    <PackageReleaseNotes>
+		- Made microsoft session address non-readonly
+		
 </PackageReleaseNotes>
   </PropertyGroup>
 	<PropertyGroup>
