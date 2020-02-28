@@ -688,9 +688,15 @@ namespace Peering.Tests
         /// <returns>
         /// The <see cref="ResourceGroup"/>.
         /// </returns>
-        private ResourceGroup CreateResourceGroup()
+        private ResourceGroup CreateResourceGroup(bool isLocal = true)
         {
             var rgname = TestUtilities.GenerateName("res");
+
+            if (isLocal)
+            {
+                return new ResourceGroup("centralus", null, rgname);
+            }
+
             var resourceGroup = this.ResourcesClient.ResourceGroups.CreateOrUpdate(
                 rgname,
                 new ResourceGroup { Location = "centralus" });
@@ -848,12 +854,12 @@ namespace Peering.Tests
         private bool DeletePeering(string name, string resourceGroupName)
         {
 
-            PeeringModel peer = null;
+            PeeringModel peering = null;
             try
             {
                 this.Client.Peerings.Delete(resourceGroupName, name);
-                peer = this.Client.Peerings.Get(resourceGroupName, name);
-                if (peer == null)
+                peering = this.Client.Peerings.Get(resourceGroupName, name);
+                if (peering == null || peering.ProvisioningState == "Deleting")
                 {
                     return true;
                 }
@@ -862,7 +868,7 @@ namespace Peering.Tests
             }
             catch (Exception ex)
             {
-                Assert.Null(peer);
+                Assert.Null(peering);
                 Assert.NotNull(ex.Message);
                 Assert.True(this.DeleteResourceGroup(resourceGroupName));
                 return true;
@@ -878,11 +884,16 @@ namespace Peering.Tests
         /// <returns>
         /// The <see cref="bool"/>.
         /// </returns>
-        private bool DeleteResourceGroup(string resourceGroupName)
+        private bool DeleteResourceGroup(string resourceGroupName, bool isLocal = true)
         {
             ResourceGroup resourceGroup = null;
             try
             {
+                if (isLocal)
+                {
+                    return true;
+                }
+
                 this.ResourcesClient.ResourceGroups.Delete(resourceGroupName);
                 resourceGroup = this.ResourcesClient.ResourceGroups.Get(resourceGroupName);
                 if (resourceGroup == null)
@@ -992,35 +1003,6 @@ namespace Peering.Tests
             catch (Exception ex)
             {
                 Assert.Null(peerAsn);
-                Assert.NotNull(ex.Message);
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// The delete resource group.
-        /// </summary>
-        /// <param name="context">
-        /// The context.
-        /// </param>
-        /// <param name="name">
-        /// The name.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        private bool DeleteResourceGroup(MockContext context, string name)
-        {
-            this.ResourcesClient = context.GetServiceClient<ResourceManagementClient>();
-            ResourceGroup resourceGroup = null;
-            try
-            {
-                resourceGroup = this.ResourcesClient.ResourceGroups.Get(name);
-                return resourceGroup == null;
-            }
-            catch (Exception ex)
-            {
-                Assert.Null(resourceGroup);
                 Assert.NotNull(ex.Message);
                 return true;
             }
