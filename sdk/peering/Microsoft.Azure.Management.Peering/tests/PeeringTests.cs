@@ -57,7 +57,7 @@ namespace Peering.Tests
         public PeeringTests()
         {
             // Set the value to false for Playback or True for record.
-            this.Setup(true);
+            this.Setup(false);
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace Peering.Tests
                 }
                 catch (Exception ex)
                 {
-                    Assert.Contains("NotFound", ex.Message);
+                    Assert.Contains("MethodNotAllowed", ex.Message);
                 }
                 finally
                 {
