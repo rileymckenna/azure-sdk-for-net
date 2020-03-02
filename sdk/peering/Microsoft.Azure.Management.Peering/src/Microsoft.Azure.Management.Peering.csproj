@@ -9,9 +9,9 @@
 		<AssemblyName>Microsoft.Azure.Management.Peering</AssemblyName>
 		<Version>2.0.1-preview</Version>
 		<PackageTags></PackageTags>
-    <PackageReleaseNotes>
-		- Made microsoft session address non-readonly
-		
+    <PackageReleaseNotes><![CDATA[
+- Made microsoft session address non-readonly
+]]>
 </PackageReleaseNotes>
   </PropertyGroup>
 	<PropertyGroup>
